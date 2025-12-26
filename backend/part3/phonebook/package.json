@@ -1,0 +1,35 @@
+{
+  "name": "part3",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/MGigenaDePaul/exercises-react-from-3.9#readme",
+  "bugs": {
+    "url": "https://github.com/MGigenaDePaul/exercises-react-from-3.9/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MGigenaDePaul/exercises-react-from-3.9.git"
+  },
+  "license": "MIT",
+  "author": "Miqueas Gigena",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "mongoose": "^8.16.4",
+    "morgan": "^1.10.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@stylistic/eslint-plugin": "^5.2.2",
+    "eslint": "^9.32.0",
+    "globals": "^16.3.0"
+  }
+}
