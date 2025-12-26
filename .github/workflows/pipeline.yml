@@ -41,21 +41,11 @@ jobs:
         run: npm run build
       
       - name: Copy frontend build to backend
-        run: |
-            if [ -d "frontend/src-phonebook/dist" ]; then
-                echo "Found dist at frontend/src-phonebook/dist"
-                cp -r frontend/src-phonebook/dist backend/part3/phonebook/
-            elif [ -d "frontend/dist" ]; then
-                echo "Found dist at frontend/dist"
-                cp -r frontend/dist backend/part3/phonebook/
-            else
-                echo "ERROR: dist folder not found!"
-                exit 1
-            fi
+        run: cp -r frontend/dist backend/part3/phonebook/
       
       - name: Deploy to Render
         if: ${{ github.event_name == 'push' && env.CONDITION == 'true' }}
-        run: curl https://api.render.com/deploy/${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}
+        run: curl https://api.render.com/deploy/srv_${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}
       
       - name: Discord notify (success)
         if: ${{ success() && github.event_name == 'push' && env.CONDITION == 'true' }}
