@@ -41,7 +41,7 @@ jobs:
         run: npm run build
       
       - name: Copy frontend build to backend
-        run: cp -r frontend/src-phonebook/dist backend/part3/phonebook/
+        run: cp -r ./frontend/src-phonebook/dist ./backend/part3/phonebook/
       
       - name: Deploy to Render
         if: ${{ github.event_name == 'push' && env.CONDITION == 'true' }}
