@@ -1,0 +1,81 @@
+name: Deployment pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+
+env: 
+  CONDITION: ${{ !contains(join(github.event.commits.*.message), '#skip') }}
+
+jobs:
+  deployment_pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install backend dependencies
+        working-directory: ./backend/part3/phonebook
+        run: npm install
+      
+      - name: Lint backend
+        working-directory: ./backend/part3/phonebook
+        run: npm run lint
+      
+      - name: Install frontend dependencies
+        working-directory: ./frontend/src-phonebook
+        run: npm install
+      
+      - name: Lint frontend
+        working-directory: ./frontend/src-phonebook
+        run: npm run lint
+      
+      - name: Build frontend
+        working-directory: ./frontend/src-phonebook
+        run: npm run build
+      
+      - name: Copy frontend build to backend
+        run: cp -r ./frontend/src-phonebook/dist ./backend/part3/phonebook/
+      
+      - name: Deploy to Render
+        if: ${{ github.event_name == 'push' && env.CONDITION == 'true' }}
+        run: curl https://api.render.com/deploy/${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}
+      
+      - name: Discord notify (success)
+        if: ${{ success() && github.event_name == 'push' && env.CONDITION == 'true' }}
+        uses: Ilshidur/action-discord@0.3.2
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        with:
+          args: 'Phonebook app deployed successfully!'
+      
+      - name: Discord notify (failure)
+        if: ${{ failure() }}
+        uses: Ilshidur/action-discord@0.3.2
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        with:
+          args: 'Build failed - commit ${{ github.event.head_commit.url }} by ${{ github.event.head_commit.author.username }} broke the build'
+
+  tag_release:
+    needs: [deployment_pipeline]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+      
+      - name: Bump version and push tag
+        if: ${{ github.event_name == 'push' && env.CONDITION == 'true' }}
+        uses: anothrNick/github-tag-action@1.70.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: patch
